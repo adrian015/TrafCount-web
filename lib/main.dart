@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'traf_count_helper.dart';
 
 import 'firebase_options.dart';
@@ -30,12 +32,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   final timeNow = DateTime.now();
   final timeFrame = DateTime.now().subtract(const Duration(days: 7));
 
-  CollectionReference myCollection = FirebaseFirestore.instance.collection('Traffic');
-  
+  CollectionReference myCollection =
+      FirebaseFirestore.instance.collection('Traffic');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             FutureBuilder<QuerySnapshot>(
-              future: myCollection.where('time_detected', isGreaterThanOrEqualTo: timeFrame).get(),
+              future: myCollection
+                  .where('time_detected', isGreaterThanOrEqualTo: timeFrame)
+                  .get(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
@@ -60,7 +64,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 var typeCount = {};
                 List<GraphData> dateGraph = [];
-                // '-motorcyclist':0,'-vehicle':0
 
                 var docSnapshots = snapshot.data!.docs;
 
@@ -79,55 +82,49 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Column(
                       children: [
-
-                        buildCountText("vehicles",(typeCount['-vehicle'] ?? 0)),
-
-                        buildCountText("pedestrians",(typeCount['-pedestrian'] ?? 0)),
-
-                        buildCountText("bicyclist",(typeCount['-cyclist'] ?? 0)),
-
-                        buildCountText("motorcyclist",(typeCount['-motorcyclist'] ?? 0)),
-
-                        buildCountText("large vehicles",(typeCount['-large_vehicle'] ?? 0)),
-
+                        buildCountText(
+                            "vehicles", (typeCount['-vehicle'] ?? 0)),
+                        buildCountText(
+                            "pedestrians", (typeCount['-pedestrian'] ?? 0)),
+                        buildCountText(
+                            "bicyclist", (typeCount['-cyclist'] ?? 0)),
+                        buildCountText(
+                            "motorcyclist", (typeCount['-motorcyclist'] ?? 0)),
+                        buildCountText("large vehicles",
+                            (typeCount['-large_vehicle'] ?? 0)),
                         RichText(
-                                text: TextSpan(
-                                  text: "Total traffic:",
-                                  style: const TextStyle(fontSize: 18),
-                                  children: <TextSpan>[
-                                    TextSpan(text: ' $collectionSize\n', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
+                          text: TextSpan(
+                            text: "Total traffic:",
+                            style: const TextStyle(fontSize: 18),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: ' $collectionSize\n',
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-
                     Column(
                       children: [
+                        SfCartesianChart(
+                          primaryXAxis: DateTimeCategoryAxis(
+                            intervalType: DateTimeIntervalType.days
+                          ),
+                            series: <ChartSeries<GraphData, DateTime>>[
+                            // Renders Column chart
+                            ColumnSeries<GraphData, DateTime>(
+                                dataSource: dateGraph,
+                                xValueMapper: (GraphData data, _) => data.date,
+                                yValueMapper: (GraphData data, _) => 1
+                            )
+                        ]  
 
-                        buildCountText("vehicles",(typeCount['-vehicle'] ?? 0)),
-
-                        buildCountText("pedestrians",(typeCount['-pedestrian'] ?? 0)),
-
-                        buildCountText("bicyclist",(typeCount['-cyclist'] ?? 0)),
-
-                        buildCountText("motorcyclist",(typeCount['-motorcyclist'] ?? 0)),
-
-                        buildCountText("large vehicles",(typeCount['-large_vehicle'] ?? 0)),
-
-                        RichText(
-                                text: TextSpan(
-                                  text: "Total traffic:",
-                                  style: const TextStyle(fontSize: 18),
-                                  children: <TextSpan>[
-                                    TextSpan(text: ' $collectionSize\n', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
+                            )
                       ],
                     ),
-
-                    
                   ],
                 );
               },
