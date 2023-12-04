@@ -26,3 +26,15 @@ RichText buildCountText(String labelText, int count){
         ),
       );
 }
+
+RichText buildDoubleText(String labelText, double count){
+  return RichText(
+        text: TextSpan(
+          text: labelText,
+          style: const TextStyle(fontSize: 18),
+          children: <TextSpan>[
+            TextSpan(text: ' $count\n', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      );
+}
