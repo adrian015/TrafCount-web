@@ -69,6 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                   int collectionSize = snapshot.data!.size;
 
+                  if(collectionSize == 0){
+                    return const Text("NO DATA TO WORK WITH");
+                  }
+
                   var typeCount = {};
                   List<GraphData> dateGraph = [];
                   List<AvgData> avgPerHour = [];
@@ -79,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   for (var i in docSnapshots) {
                     var type = i.get("type");
                     typeCount[type] =
-                        (typeCount[type] ?? 0) + 7; // CHANGED 1 > 7
+                        (typeCount[type] ?? 0) + 1;
                   }
 
                   var groupByDate = groupBy(
@@ -98,15 +102,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   groupByDate.forEach((date, list) {
                     var newDetec = GraphData(
                         date: DateTime.parse(date),
-                        detections: list.length *
-                            7); // CHANGED list.length > list.length*7
+                        detections: list.length
+                            );
                     dateGraph.add(newDetec);
                   });
                   groupByClass.forEach((classAvg, list) {
                     var newAvg = AvgData(
                         classDetected: classAvg,
-                        avg: (list.length / timeFrameHours) *
-                            7); // CHANGED multplied by 7
+                        avg: (list.length / timeFrameHours) 
+                            );
                     avgPerHour.add(newAvg);
                   });
 
@@ -130,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           buildCountText("Number of large vehicles:",
                               (typeCount['-large_vehicle'] ?? 0)),
                           buildCountText("Total traffic:",
-                              collectionSize * 7), // CHANGED multiplied by 7
+                              collectionSize ),
                         ],
                       ),
                       const SizedBox(
@@ -138,31 +142,32 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
 
                       // Graph for total traffic for the day
-                      Column(
-                        children: [
-                          SfCartesianChart(
-                              title: ChartTitle(
-                                text: 'Total traffic per day',
-                                alignment: ChartAlignment.center,
-                              ),
-                              primaryXAxis: DateTimeCategoryAxis(
-                                intervalType: DateTimeIntervalType.days,
-                                labelRotation: 45,
-                                labelAlignment: LabelAlignment.center,
-                              ),
-                              series: <ChartSeries<GraphData, DateTime>>[
-                                // Renders Column chart
-                                ColumnSeries<GraphData, DateTime>(
-                                    dataSource: dateGraph,
-                                    xValueMapper: (GraphData data, _) =>
-                                        data.date,
-                                    yValueMapper: (GraphData data, _) =>
-                                        data.detections,
-                                    dataLabelSettings: const DataLabelSettings(
-                                        isVisible: true)),
-                              ]),
-                        ],
+                      SizedBox(
+                        height: 400,
+                        width: 400,
+                        child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'Total traffic per day',
+                              alignment: ChartAlignment.center,
+                            ),
+                            primaryXAxis: DateTimeCategoryAxis(
+                              intervalType: DateTimeIntervalType.days,
+                              labelRotation: 45,
+                              labelAlignment: LabelAlignment.center,
+                            ),
+                            series: <ChartSeries<GraphData, DateTime>>[
+                              // Renders Column chart
+                              ColumnSeries<GraphData, DateTime>(
+                                  dataSource: dateGraph,
+                                  xValueMapper: (GraphData data, _) =>
+                                      data.date,
+                                  yValueMapper: (GraphData data, _) =>
+                                      data.detections,
+                                  dataLabelSettings: const DataLabelSettings(
+                                      isVisible: true)),
+                            ]),
                       ),
+                      
                       const SizedBox(
                         width: 50,
                       ),
@@ -191,27 +196,27 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
 
                       // Graph for avg traffic per hour for type
-                      Column(
-                        children: [
-                          SfCartesianChart(
-                              title: ChartTitle(
-                                text: 'Average traffic per hour',
-                                alignment: ChartAlignment.center,
-                              ),
-                              primaryXAxis: CategoryAxis(
-                                labelRotation: 45,
-                                labelAlignment: LabelAlignment.center,
-                              ),
-                              series: <ChartSeries<AvgData, String>>[
-                                // Renders Column chart
-                                ColumnSeries<AvgData, String>(
-                                  dataSource: avgPerHour,
-                                  xValueMapper: (AvgData data, _) =>
-                                      data.classDetected,
-                                  yValueMapper: (AvgData data, _) => data.avg,
-                                )
-                              ]),
-                        ],
+                      SizedBox(
+                        height: 400,
+                        width: 400,
+                        child: SfCartesianChart(
+                            title: ChartTitle(
+                              text: 'Average traffic per hour',
+                              alignment: ChartAlignment.center,
+                            ),
+                            primaryXAxis: CategoryAxis(
+                              labelRotation: 45,
+                              labelAlignment: LabelAlignment.center,
+                            ),
+                            series: <ChartSeries<AvgData, String>>[
+                              // Renders Column chart
+                              ColumnSeries<AvgData, String>(
+                                dataSource: avgPerHour,
+                                xValueMapper: (AvgData data, _) =>
+                                    data.classDetected,
+                                yValueMapper: (AvgData data, _) => data.avg,
+                              )
+                            ]),
                       ),
                     ],
                   );
