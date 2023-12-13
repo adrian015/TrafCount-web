@@ -34,9 +34,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // Get time frame for past 7 days
   final timeNow = DateTime.now();
   final timeFrame = DateTime.now().subtract(const Duration(days: 7));
-
+  // Get firebas collection
   CollectionReference myCollection =
       FirebaseFirestore.instance.collection('Traffic');
 
@@ -73,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     return const Text("NO DATA TO WORK WITH");
                   }
 
+                  // Containers used for analytics
                   var typeCount = {};
                   List<GraphData> dateGraph = [];
                   List<AvgData> avgPerHour = [];
@@ -86,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         (typeCount[type] ?? 0) + 1;
                   }
 
+                  // Group by day
                   var groupByDate = groupBy(
                       docSnapshots,
                       (obj) => obj
@@ -94,11 +97,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           .toString()
                           .substring(0, 10));
 
+                  // Group by class
                   var groupByClass = groupBy(
                       docSnapshots,
                       (obj) =>
                           obj.get("type").substring(1, obj.get("type").length));
 
+                  // Goes through group by date and adds it to array to be used in graph later on
                   groupByDate.forEach((date, list) {
                     var newDetec = GraphData(
                         date: DateTime.parse(date),
@@ -106,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                     dateGraph.add(newDetec);
                   });
+                  // Goes through group by class and adds it to array to be used in graph later on
                   groupByClass.forEach((classAvg, list) {
                     var newAvg = AvgData(
                         classDetected: classAvg,
@@ -116,6 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   // Column for checking count of each type detected
                   return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Display totals
                       const SizedBox(
@@ -143,8 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       // Graph for total traffic for the day
                       SizedBox(
-                        height: 400,
-                        width: 400,
+                        height: 415,
+                        width: 415,
                         child: SfCartesianChart(
                             title: ChartTitle(
                               text: 'Total traffic per day',
@@ -197,8 +205,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       // Graph for avg traffic per hour for type
                       SizedBox(
-                        height: 400,
-                        width: 400,
+                        height: 415,
+                        width: 415,
                         child: SfCartesianChart(
                             title: ChartTitle(
                               text: 'Average traffic per hour',
